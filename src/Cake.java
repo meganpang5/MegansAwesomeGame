@@ -6,6 +6,9 @@ import java.awt.*;
  */
 public class Cake {
 
+    boolean baked = false;
+    int y = 0;
+
     //VARIABLE DECLARATION SECTION
     //Here's where you state which variables you are going to use.
     public String name;               //name of the hero
@@ -38,6 +41,16 @@ public class Cake {
 
  
     }
+    public void update(){
+
+            // falling motion
+            y += 5;
+
+    }
+    public void baked(){
+        baked = true;
+    }
+
 
     public void move() { // move
         xpos = xpos + dx;
