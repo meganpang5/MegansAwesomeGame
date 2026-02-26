@@ -19,6 +19,7 @@ public class Cake {
     public int width;                 //the width of the hero image
     public int height;                //the height of the hero image
     public boolean isAlive;           //a boolean to denote if the hero is alive or dead
+    public boolean isBaked;           //a boolean to denote if the hero is alive or dead
     public Rectangle rect;
     public double successRate;
     public int health;
@@ -34,7 +35,8 @@ public class Cake {
         dy = (int)(Math.random()*11) - 5;
         width = 100;
         height = 100;
-        isAlive = true;
+        isAlive = false;
+        isBaked = false;
         rect = new Rectangle(xpos, ypos, width, height);
         successRate = psuccess;
         health = 150;
