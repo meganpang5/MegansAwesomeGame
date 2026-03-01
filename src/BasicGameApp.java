@@ -32,7 +32,6 @@ public class BasicGameApp implements Runnable, KeyListener {
     public JFrame frame;
     public Canvas canvas;
     public JPanel panel;
-
     public BufferStrategy bufferStrategy;
 
     Chef chef;
@@ -42,21 +41,15 @@ public class BasicGameApp implements Runnable, KeyListener {
     Cake cake;
     Image cakeImage;
     Cake[] cakes;
-//    Cake cake1;
-//    Image cakeImage1;
-//    Cake ncracker2;
-//    Image ncrackerImage2;
     Image wood = Toolkit.getDefaultToolkit().getImage("gingham.png");
     Image baked = Toolkit.getDefaultToolkit().getImage("cake.png");
     public boolean firstchefCakeCrash;
     public boolean firstcakeOvenCrash;
-    public boolean firstchefCakesCrash;
-//    public boolean firstchefCake1Crash;
     public boolean pressingKey;
     public boolean timesUp;
     public boolean cakeGrabbed;
-//    public boolean cake1Grabbed;
     public boolean cakeBaked;
+    int activeCakeNumber = 0;
 
     // Main method definition
     // This is the code that runs first and automatically
@@ -82,15 +75,14 @@ public class BasicGameApp implements Runnable, KeyListener {
         ovenImage = Toolkit.getDefaultToolkit().getImage("oven.png");
         cake = new Cake("cake", 100, 200, 0.25);
         cakeImage = Toolkit.getDefaultToolkit().getImage("bowl.png");
-        cakes = new Cake [6];
+        cakes = new Cake [10];
         for (int x = 0; x < cakes.length ; x++){
-            cakes[x] = new Cake("Cake " + x, (int)(Math.random()*WIDTH),(int)(Math.random()*HEIGHT), 0.25);
+            cakes[x] = new Cake("Cake " + x, (int)(Math.random()*WIDTH), (int)(Math.random()*HEIGHT), 0.25);
+            cakes[x].isAlive = false;
+            cakes[x].isBaked = false;
         }
+        activeCakeNumber = 0;
         cakes[0].isAlive = true;
-//        cake1 = new Cake("cake1", 900, 100, 0.25);
-//        cakeImage1 = Toolkit.getDefaultToolkit().getImage("bowl.png");
-//        ncracker2 = new Cake("ncracker3", 500, 200, 0.25);
-//        ncrackerImage2 = Toolkit.getDefaultToolkit().getImage("nutcracker.png");
         run();
 
     } // end BasicGameApp constructor
@@ -106,181 +98,100 @@ public class BasicGameApp implements Runnable, KeyListener {
         //for the moment we will loop things forever.
         while (true) {
             moveThings(); //move all the game object
-//            if (astro1.isAlive == false){
-//                astro1.width = astro1.width + 10;
-//                astro1.height = astro1.height + 10;
-//            }
             render();  // paint the graphics
             pause(30); // sleep for 10 ms
         }
     }
 
     public void moveThings() {
-//        bunny.bounce();
         oven.bounce();
-        if (cakeGrabbed == false && cake.isAlive == true){
-            cake.wrap();
-        }
-        else if (cakeGrabbed == true && cake.isAlive == true){
-            cake.xpos = chef.xpos;
-            cake.ypos = chef.ypos;
-            cake.rect = new Rectangle(cake.xpos, cake.ypos, cake.width, cake.height);
-        }
-        else if (cake.isAlive == false){
-            cakeGrabbed = false;
-            cake.dx = 0;
-            cake.dy = 0;
-        }
-        for (int x = 0; x < cakes.length ; x++){
-            cakes[x].wrap();
-        }
-//        if (cake1Grabbed == false && cake1.isAlive == true){
-//            cake1.wrap();
-//        }
-//        else if (cake1Grabbed == true && cake1.isAlive == true){
-//            cake1.xpos = chef.xpos;
-//            cake1.ypos = chef.ypos;
-//            cake1.rect = new Rectangle(cake1.xpos, cake1.ypos, cake1.width, cake1.height);
-//        }
-//        else if (cake1.isAlive == false){
-//            cake1Grabbed = false;
-//            cake1.dx = 0;
-//            cake1.dy = 0;
-//        }
 
         if (pressingKey) {
             chef.move();
         }
-//        if(timesUp = true){
-//            bunny.dx = -bunny.dx;
-//            bunny.dy = -bunny.dy;
-//        }
 
+        Cake activeCake = cakes[activeCakeNumber];
 
-        cakeOvenCrash();
+        // If batter is in hand, force it to be on the chef before collisions
+        if (cakeGrabbed == true && activeCake.isAlive == true && activeCake.isBaked == false) {
+            activeCake.xpos = chef.xpos;
+            activeCake.ypos = chef.ypos;
+            activeCake.dx = chef.dx;
+            activeCake.dy = chef.dy;
+            activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
+        }
+        // Otherwise batter moves freely
+        else if (activeCake.isAlive == true && activeCake.isBaked == false) {
+            activeCake.wrap();
+        }
+
+        //checking collisions
         chefCakesCrash();
-
+        cakeOvenCrash();
     }
 
     public void cakeOvenCrash() {
-        for (int x = 0; x < cakes.length; x++) {
-            if (oven.rect.intersects(cakes[x].rect)) {
-//                firstcakeOvenCrash = false;
+        Cake activeCake = cakes[activeCakeNumber];
 
-//            double rand1 = Math.random();
-//            double rand2 = Math.random();
-//            if (rand1 + oven.successRate > rand2 + cake.successRate) {
-                oven.dx = -oven.dx;
-                oven.dy = -oven.dy;
-                cakes[x].dx = 0;
-                cakes[x].dy = 0;
-//                ncracker.height+=50;
-//                ncracker.width+=50;
-//                chef.health = chef.health - 5;
-                cakes[x].isBaked = true;
-//                timesUp = true;
-//            else{
-//                ncracker.dx = 0;
-//                ncracker.dy = 0;
-//                astro.dx = -astro.dx;
-//                astro.dy = -astro.dy;
-                //when they hit one of them stops and the other one expands
-            }
+        if (activeCake.isAlive && oven.rect.intersects(activeCake.rect) && cakeGrabbed == true) {
 
-//            if (!oven.rect.intersects(cake.rect)) {
-//                firstcakeOvenCrash = true;
-//
-//            }
+            // bounce oven
+            oven.dx = -oven.dx;
+            oven.dy = -oven.dy;
+
+            // bake cake in place (where the batter currently is)
+            activeCake.dx = 0;
+            activeCake.dy = 0;
+            activeCake.isBaked = true;
+
+            // hand becomes empty
+            cakeGrabbed = false;
+
+            // activeCake stays alive so it can sit there as a baked cake
+            activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
+
+            // spawn new batter somewhere else
+            spawnNextCake();
         }
     }
 
-    public void chefCakesCrash(){
-        for(int x = 0; x < cakes.length; x++){
-            if ( chef.rect.intersects(cakes[x].rect)) {
-//                firstchefCakesCrash = false;
-                cakeGrabbed = true;
-//
-//                double rand1 = Math.random();
-//                double rand2 = Math.random();
+    public void chefCakesCrash() {
+        Cake activeCake = cakes[activeCakeNumber];
 
-//                if (rand1 + chef.successRate > rand2 + cakes[x].successRate) {
-//                    chef.dx = -chef.dy;
-//                    chef.dy = -chef.dy;
-//
-////            }
+        if (activeCake.isAlive && chef.rect.intersects(activeCake.rect)) {
+            cakeGrabbed = true;
+        }
 
-//            else{
-//                ncracker.dx = 0;
-//                ncracker.dy = 0;
-//                astro.dx = -astro.dx;
-//                astro.dy = -astro.dy;
-//                }
-
-            }
-            if(cakeGrabbed == true && cakeBaked == false){
-                cakes[x].xpos = chef.xpos;
-                cakes[x].ypos = chef.ypos;
-                cakes[x].dx = chef.dx;
-                cakes[x].dy = chef.dy;
-            }
-            else if(cakeGrabbed == true && cakeBaked == true){
-                cakes[x].xpos = cakes[x].xpos;
-                cakes[x].ypos = cakes[x].ypos;
-                cakes[x].dx = 0;
-                cakes[x].dy = 0;
-            }
-
-
-//            if (!chef.rect.intersects(cakes[x].rect) && cakeBaked == true) {
-//                firstchefCakesCrash = true;
-////            cake.isAlive = false;
-//
-//            //when they hit one of them stops and the other one expands
-//            }
+        if (cakeGrabbed == true && cakeBaked == false) {
+            activeCake.xpos = chef.xpos;
+            activeCake.ypos = chef.ypos;
+            activeCake.dx = chef.dx;
+            activeCake.dy = chef.dy;
+            activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
         }
     }
-//    public void chefCakeCrash() {
-//
-//
-//
-//        if (chef.rect.intersects(cake.rect) && firstchefCakeCrash == true) {
-//            firstchefCakeCrash = false;
-//
-//            double rand1 = Math.random();
-//            double rand2 = Math.random();
-//            if (rand1 + chef.successRate > rand2 + cake.successRate) {
-//                chef.dx = -chef.dy;
-//                chef.dy = -chef.dy;
-//
-//
-////                oven.height += 50;
-////                oven.width += 50;
-////                chef.height += 50;
-////                chef.width += 50;
-////                chef.isAlive = false;
-////            }
-//                cakeGrabbed = true;
-////            else{w
-////                ncracker.dx = 0;
-////                ncracker.dy = 0;
-////                astro.dx = -astro.dx;
-////                astro.dy = -astro.dy;
-//            } //when they hit one of them stops and the other one expands
-//
-//        }
-//        if(cakeGrabbed == true && cakeBaked == false){
-//            cake.xpos = chef.xpos;
-//            cake.ypos = chef.ypos;
-//            cake.dx = chef.dx;
-//            cake.dy = chef.dy;
-//        }
-//
-//        if (!chef.rect.intersects(cake.rect) && cakeBaked == true) {
-//            firstchefCakeCrash = true;
-////            cake.isAlive = false;
-//
-//        }
-//    }
+
+    public void spawnNextCake() {
+        cakeBaked = false;
+
+        activeCakeNumber++;
+        if (activeCakeNumber >= cakes.length) {
+            activeCakeNumber = 0;
+        }
+
+        Cake next = cakes[activeCakeNumber];
+        next.xpos = (int)(Math.random() * WIDTH);
+        next.ypos = (int)(Math.random() * HEIGHT);
+        next.dx = (int)(Math.random() * 11) - 5;
+        next.dy = (int)(Math.random() * 11) - 5;
+
+        next.isBaked = false;
+        next.isAlive = true;
+
+        next.rect = new Rectangle(next.xpos, next.ypos, next.width, next.height);
+
+        cakeGrabbed = false;
+    }
 
 
 
@@ -289,41 +200,27 @@ public class BasicGameApp implements Runnable, KeyListener {
         Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
 
         g.clearRect(0, 0, WIDTH, HEIGHT);
-        //g.drawImage(astroImage,0,0,WIDTH, HEIGHT, null);
-//        g.setColor(new Color(255, 240, 240));
-//        g.fillRect(0,0,WIDTH, HEIGHT);
         g.drawImage(wood, 0, 0, WIDTH, HEIGHT, null);
-//health bar:
-//        g.setColor(new Color(217, 119, 119));
-//        g.fillRect(800, 20, chef.health, 15);
 
-        //draw the image
         g.drawImage(ovenImage, oven.xpos, oven.ypos, oven.width, oven.height, null);
 
-        for (int x = 0; x < cakes.length ; x++){
-            if (cakes[x].isBaked == true) {
-                g.drawImage(baked, cakes[x].xpos, cakes[x].ypos, cakes[x].width, cakes[x].height, null);
-            } else if (cakes[x].isAlive == true) {
-                g.drawImage(cakeImage, cakes[x].xpos, cakes[x].ypos, cakes[x].width, cakes[x].height, null);
+        // draw all baked cakes
+        for (int i = 0; i < cakes.length; i++) {
+            if (cakes[i].isBaked == true) {
+                g.drawImage(baked, cakes[i].xpos, cakes[i].ypos, cakes[i].width, cakes[i].height, null);
             }
         }
-//        if (cake1.isAlive == false) {
-//            g.drawImage(baked, cake1.xpos, cake1.ypos, cake1.width, cake1.height, null);
-//        } else {
-//            g.drawImage(cakeImage1, cake1.xpos, cake1.ypos, cake1.width, cake1.height, null);
-//
-//        }
-//        if(timesUp == true){
-//            g.drawImage(bunnyImage, bunny.xpos, bunny.ypos, bunny.width, bunny.height, null);
-//        }
 
+        // draw ONLY the active batter
+        Cake activeCake = cakes[activeCakeNumber];
+        if (activeCake.isAlive == true && activeCake.isBaked == false) {
+            g.drawImage(cakeImage, activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height, null);
+        }
 
         g.drawImage(chefImage, chef.xpos, chef.ypos, chef.width, chef.height, null);
 
-
         g.dispose();
         bufferStrategy.show();
-
     }
 
     //Pauses or sleeps the computer for the amount specified in milliseconds
@@ -378,8 +275,6 @@ public class BasicGameApp implements Runnable, KeyListener {
         if (e.getKeyCode() == 87) {
             chef.dy = -10;
             chef.dx = 0;
-//            bunny.ypos = bunny.ypos - bunny.dy;
-//            bunny.rect = new Rectangle(bunny.xpos, bunny.ypos, bunny.width, bunny.height);
         }
         if (e.getKeyCode() == 65) {
             chef.dx = -10;
@@ -404,8 +299,6 @@ public class BasicGameApp implements Runnable, KeyListener {
         if (e.getKeyCode() == 87) {
             chef.dy = 0;
             chef.dx = 0;
-//            bunny.ypos = bunny.ypos - bunny.dy;
-//            bunny.rect = new Rectangle(bunny.xpos, bunny.ypos, bunny.width, bunny.height);
         }
         if (e.getKeyCode() == 65) {
             chef.dx = 0;
@@ -423,4 +316,3 @@ public class BasicGameApp implements Runnable, KeyListener {
         }
     }
 }
-//}
