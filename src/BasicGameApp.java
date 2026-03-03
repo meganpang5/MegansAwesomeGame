@@ -274,22 +274,23 @@ public class BasicGameApp implements Runnable, KeyListener {
         pressingKey = true;
         if (e.getKeyCode() == 87) {
             chef.dy = -10;
-            chef.dx = 0;
+
         }
         if (e.getKeyCode() == 65) {
             chef.dx = -10;
-            chef.dy = 0;
+
 
         }
         if (e.getKeyCode() == 83) {
             chef.dy = 10;
-            chef.dx = 0;
+
         }
         if (e.getKeyCode() == 68) {
             chef.dx = 10;
-            chef.dy = 0;
+
 
         }
+
 
     }
 
@@ -299,7 +300,7 @@ public class BasicGameApp implements Runnable, KeyListener {
         if (e.getKeyCode() == 87) {
             chef.dy = 0;
             chef.dx = 0;
-        }
+        }s
         if (e.getKeyCode() == 65) {
             chef.dx = 0;
             chef.dy = 0;
@@ -314,5 +315,6 @@ public class BasicGameApp implements Runnable, KeyListener {
             chef.dy = 0;
 
         }
+
     }
 }
