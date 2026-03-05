@@ -54,7 +54,7 @@ public class Oven {
             dx=-dx;
         }
 
-        else if(xpos<=0) {
+        else if(xpos<=600) {
             dx = -dx;
         }
 

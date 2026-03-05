@@ -71,7 +71,7 @@ public class BasicGameApp implements Runnable, KeyListener {
         cakeGrabbed = false;
         chef = new Chef("chef", 0, 0, 0.75);
         chefImage = Toolkit.getDefaultToolkit().getImage("chef.png");
-        oven = new Oven("oven", 300, 400, 0.75);
+        oven = new Oven("oven", 800, 400, 0.75);
         ovenImage = Toolkit.getDefaultToolkit().getImage("oven.png");
         cake = new Cake("cake", 100, 200, 0.25);
         cakeImage = Toolkit.getDefaultToolkit().getImage("bowl.png");
@@ -300,7 +300,7 @@ public class BasicGameApp implements Runnable, KeyListener {
         if (e.getKeyCode() == 87) {
             chef.dy = 0;
             chef.dx = 0;
-        }s
+        }
         if (e.getKeyCode() == 65) {
             chef.dx = 0;
             chef.dy = 0;
