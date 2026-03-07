@@ -89,7 +89,7 @@ public class Cake {
             xpos=0;
         }
         else if (xpos<0) {
-            xpos=1000;
+            xpos=750;
         }
         if(ypos > 700 ){
             ypos=0;

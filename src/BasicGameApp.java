@@ -41,7 +41,7 @@ public class BasicGameApp implements Runnable, KeyListener {
     Cake cake;
     Image cakeImage;
     Cake[] cakes;
-    Image wood = Toolkit.getDefaultToolkit().getImage("gingham.png");
+    Image wood = Toolkit.getDefaultToolkit().getImage("kitchen.png");
     Image baked = Toolkit.getDefaultToolkit().getImage("cake.png");
     public boolean firstchefCakeCrash;
     public boolean firstcakeOvenCrash;
