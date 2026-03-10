@@ -34,6 +34,8 @@ public class BasicGameApp implements Runnable, KeyListener {
     public JPanel panel;
     public BufferStrategy bufferStrategy;
 
+   Waiter waiter;
+   Image waiterImage;
     Chef chef;
     Oven oven;
     Image ovenImage;
@@ -49,6 +51,7 @@ public class BasicGameApp implements Runnable, KeyListener {
     public boolean timesUp;
     public boolean cakeGrabbed;
     public boolean cakeBaked;
+    public boolean waitercakeGrabbed;
     int activeCakeNumber = 0;
 
     // Main method definition
@@ -66,18 +69,21 @@ public class BasicGameApp implements Runnable, KeyListener {
         setUpGraphics();
         firstcakeOvenCrash = true;
         firstchefCakeCrash = true;
+        waitercakeGrabbed = false;
         pressingKey = false;
         timesUp = false;
         cakeGrabbed = false;
+        waiter = new Waiter ("waiter", 30,0,0.75);
+        waiterImage = Toolkit.getDefaultToolkit().getImage("waiter.png");
         chef = new Chef("chef", 0, 0, 0.75);
         chefImage = Toolkit.getDefaultToolkit().getImage("chef.png");
         oven = new Oven("oven", 800, 400, 0.75);
         ovenImage = Toolkit.getDefaultToolkit().getImage("oven.png");
-        cake = new Cake("cake", 100, 200, 0.25);
+        cake = new Cake("cake", 260, 200, 0.25);
         cakeImage = Toolkit.getDefaultToolkit().getImage("bowl.png");
         cakes = new Cake [10];
         for (int x = 0; x < cakes.length ; x++){
-            cakes[x] = new Cake("Cake " + x, (int)(Math.random()*WIDTH), (int)(Math.random()*HEIGHT), 0.25);
+            cakes[x] = new Cake("Cake " + x, (int)((Math.random()*750)+250), (int)(Math.random()*HEIGHT), 0.25);
             cakes[x].isAlive = false;
             cakes[x].isBaked = false;
         }
@@ -106,9 +112,10 @@ public class BasicGameApp implements Runnable, KeyListener {
     public void moveThings() {
         oven.bounce();
 
-        if (pressingKey) {
+//        if (pressingKey) {
             chef.move();
-        }
+            waiter.move();
+//        }
 
         Cake activeCake = cakes[activeCakeNumber];
 
@@ -120,6 +127,13 @@ public class BasicGameApp implements Runnable, KeyListener {
             activeCake.dy = chef.dy;
             activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
         }
+        else if (waitercakeGrabbed == true && activeCake.isAlive == true && activeCake.isBaked == true) {
+            activeCake.xpos = waiter.xpos;
+            activeCake.ypos = waiter.ypos;
+            activeCake.dx = waiter.dx;
+            activeCake.dy = waiter.dy;
+            activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
+        }
         // Otherwise batter moves freely
         else if (activeCake.isAlive == true && activeCake.isBaked == false) {
             activeCake.wrap();
@@ -128,6 +142,7 @@ public class BasicGameApp implements Runnable, KeyListener {
         //checking collisions
         chefCakesCrash();
         cakeOvenCrash();
+        waiterCakesCrash();
     }
 
     public void cakeOvenCrash() {
@@ -143,6 +158,7 @@ public class BasicGameApp implements Runnable, KeyListener {
             activeCake.dx = 0;
             activeCake.dy = 0;
             activeCake.isBaked = true;
+            cakeBaked = true;
 
             // hand becomes empty
             cakeGrabbed = false;
@@ -167,6 +183,23 @@ public class BasicGameApp implements Runnable, KeyListener {
             activeCake.ypos = chef.ypos;
             activeCake.dx = chef.dx;
             activeCake.dy = chef.dy;
+            activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
+        }
+    }
+    public void waiterCakesCrash() {
+        Cake activeCake = cakes[activeCakeNumber];
+
+        if (activeCake.isBaked && waiter.rect.intersects(activeCake.rect)) {
+            System.out.println("hi");
+            waitercakeGrabbed = true;
+        }
+
+        if (waitercakeGrabbed == true && activeCake.isBaked == true) {
+            System.out.println("hello");
+            activeCake.xpos = waiter.xpos;
+            activeCake.ypos = waiter.ypos;
+            activeCake.dx = waiter.dx;
+            activeCake.dy = waiter.dy;
             activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
         }
     }
@@ -218,7 +251,7 @@ public class BasicGameApp implements Runnable, KeyListener {
         }
 
         g.drawImage(chefImage, chef.xpos, chef.ypos, chef.width, chef.height, null);
-
+        g.drawImage(waiterImage, waiter.xpos, waiter.ypos, waiter.width, waiter.height, null);
         g.dispose();
         bufferStrategy.show();
     }
@@ -271,7 +304,7 @@ public class BasicGameApp implements Runnable, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         System.out.println(e.getKeyCode());
-        pressingKey = true;
+//        pressingKey = true;
         if (e.getKeyCode() == 87) {
             chef.dy = -10;
 
@@ -290,13 +323,31 @@ public class BasicGameApp implements Runnable, KeyListener {
 
 
         }
+        if (e.getKeyCode() == 38) {
+            waiter.dy = -10;
+
+        }
+        if (e.getKeyCode() == 37) {
+            waiter.dx = -10;
+
+
+        }
+        if (e.getKeyCode() == 40) {
+            waiter.dy = 10;
+
+        }
+        if (e.getKeyCode() == 39) {
+            waiter.dx = 10;
+
+
+        }
 
 
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        pressingKey= false;
+//        pressingKey= false;
         if (e.getKeyCode() == 87) {
             chef.dy = 0;
             chef.dx = 0;
@@ -313,6 +364,24 @@ public class BasicGameApp implements Runnable, KeyListener {
         if (e.getKeyCode() == 68) {
             chef.dx = 0;
             chef.dy = 0;
+
+        }
+        if (e.getKeyCode() == 38) {
+            waiter.dy = 0;
+            waiter.dx = 0;
+        }
+        if (e.getKeyCode() == 37) {
+            waiter.dx = 0;
+            waiter.dy = 0;
+
+        }
+        if (e.getKeyCode() == 40) {
+            waiter.dy = 0;
+            waiter.dx = 0;
+        }
+        if (e.getKeyCode() == 39) {
+            waiter.dx = 0;
+            waiter.dy = 0;
 
         }
 
