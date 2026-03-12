@@ -50,9 +50,11 @@ public class BasicGameApp implements Runnable, KeyListener {
     public boolean pressingKey;
     public boolean timesUp;
     public boolean cakeGrabbed;
-    public boolean cakeBaked;
+//    public boolean cakeBaked;
     public boolean waitercakeGrabbed;
     int activeCakeNumber = 0;
+    public Cake activeCake;
+
 
     // Main method definition
     // This is the code that runs first and automatically
@@ -117,7 +119,7 @@ public class BasicGameApp implements Runnable, KeyListener {
             waiter.move();
 //        }
 
-        Cake activeCake = cakes[activeCakeNumber];
+        activeCake = cakes[activeCakeNumber];
 
         // If batter is in hand, force it to be on the chef before collisions
         if (cakeGrabbed == true && activeCake.isAlive == true && activeCake.isBaked == false) {
@@ -146,7 +148,7 @@ public class BasicGameApp implements Runnable, KeyListener {
     }
 
     public void cakeOvenCrash() {
-        Cake activeCake = cakes[activeCakeNumber];
+        activeCake = cakes[activeCakeNumber];
 
         if (activeCake.isAlive && oven.rect.intersects(activeCake.rect) && cakeGrabbed == true) {
 
@@ -158,7 +160,6 @@ public class BasicGameApp implements Runnable, KeyListener {
             activeCake.dx = 0;
             activeCake.dy = 0;
             activeCake.isBaked = true;
-            cakeBaked = true;
 
             // hand becomes empty
             cakeGrabbed = false;
@@ -172,13 +173,13 @@ public class BasicGameApp implements Runnable, KeyListener {
     }
 
     public void chefCakesCrash() {
-        Cake activeCake = cakes[activeCakeNumber];
+        activeCake = cakes[activeCakeNumber];
 
         if (activeCake.isAlive && chef.rect.intersects(activeCake.rect)) {
             cakeGrabbed = true;
         }
 
-        if (cakeGrabbed == true && cakeBaked == false) {
+        if (cakeGrabbed == true && activeCake.isBaked == false) {
             activeCake.xpos = chef.xpos;
             activeCake.ypos = chef.ypos;
             activeCake.dx = chef.dx;
@@ -187,27 +188,32 @@ public class BasicGameApp implements Runnable, KeyListener {
         }
     }
     public void waiterCakesCrash() {
-        Cake activeCake = cakes[activeCakeNumber];
+        activeCake = cakes[activeCakeNumber];
+        Cake previousCake = null;
+        if (activeCakeNumber != 0) {
+            previousCake = cakes[activeCakeNumber - 1];
 
-        if (activeCake.isBaked && waiter.rect.intersects(activeCake.rect)) {
-            System.out.println("hi");
-            waitercakeGrabbed = true;
-        }
+            if (previousCake.isBaked && waiter.rect.intersects(previousCake.rect) && previousCake.isAlive) {
+                System.out.println("hi");
+                waitercakeGrabbed = true;
+            }
 
-        if (waitercakeGrabbed == true && activeCake.isBaked == true) {
-            System.out.println("hello");
-            activeCake.xpos = waiter.xpos;
-            activeCake.ypos = waiter.ypos;
-            activeCake.dx = waiter.dx;
-            activeCake.dy = waiter.dy;
-            activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
+            if (waitercakeGrabbed == true && previousCake.isBaked == true) {
+                System.out.println("hello");
+                previousCake.xpos = waiter.xpos;
+                previousCake.ypos = waiter.ypos;
+                previousCake.dx = waiter.dx;
+                previousCake.dy = waiter.dy;
+                previousCake.rect = new Rectangle(previousCake.xpos, previousCake.ypos, previousCake.width, previousCake.height);
+            }
         }
     }
 
     public void spawnNextCake() {
-        cakeBaked = false;
 
         activeCakeNumber++;
+        activeCake = cakes[activeCakeNumber];
+        activeCake.isBaked = false;
         if (activeCakeNumber >= cakes.length) {
             activeCakeNumber = 0;
         }
@@ -239,7 +245,7 @@ public class BasicGameApp implements Runnable, KeyListener {
 
         // draw all baked cakes
         for (int i = 0; i < cakes.length; i++) {
-            if (cakes[i].isBaked == true) {
+            if (activeCake.isAlive == true && cakes[i].isBaked == true) {
                 g.drawImage(baked, cakes[i].xpos, cakes[i].ypos, cakes[i].width, cakes[i].height, null);
             }
         }
