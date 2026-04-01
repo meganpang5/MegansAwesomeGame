@@ -88,7 +88,11 @@ public class BasicGameApp implements Runnable, KeyListener {
             cakes[x] = new Cake("Cake " + x, (int)((Math.random()*750)+250), (int)(Math.random()*HEIGHT), 0.25);
             cakes[x].isAlive = false;
             cakes[x].isBaked = false;
+            for (int i = 0; i < cakes.length; ++i){
+                //previous cake needs to be determined only after the waitercake is placed down
+            }
         }
+
         activeCakeNumber = 0;
         cakes[0].isAlive = true;
         run();
@@ -196,6 +200,7 @@ public class BasicGameApp implements Runnable, KeyListener {
             if (previousCake.isBaked && waiter.rect.intersects(previousCake.rect) && previousCake.isAlive) {
                 System.out.println("hi");
                 waitercakeGrabbed = true;
+
             }
 
             if (waitercakeGrabbed == true && previousCake.isBaked == true) {
