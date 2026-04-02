@@ -117,7 +117,7 @@ public class BasicGameApp implements Runnable, KeyListener {
 
     public void moveThings() {
         oven.bounce();
-
+        System.out.println(waitercakeGrabbed);
 //        if (pressingKey) {
             chef.move();
             waiter.move();
@@ -250,7 +250,7 @@ public class BasicGameApp implements Runnable, KeyListener {
 
         // draw all baked cakes
         for (int i = 0; i < cakes.length; i++) {
-            if (activeCake.isAlive == true && cakes[i].isBaked == true) {
+            if (cakes[i].isBaked == true) {
                 g.drawImage(baked, cakes[i].xpos, cakes[i].ypos, cakes[i].width, cakes[i].height, null);
             }
         }
