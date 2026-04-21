@@ -11,6 +11,8 @@
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import java.awt.*;
 import javax.swing.JFrame;
@@ -18,7 +20,7 @@ import javax.swing.JPanel;
 
 //*******************************************************************************
 
-public class BasicGameApp implements Runnable, KeyListener {
+public class BasicGameApp implements Runnable, KeyListener, MouseListener {
 
     //Variable Definition Section
     //Declare the variables used in the program
@@ -152,6 +154,7 @@ public class BasicGameApp implements Runnable, KeyListener {
 
     public void cakeOvenCrash() {
         activeCake = cakes[activeCakeNumber];
+        waitercakeGrabbed = false;
 
         if (activeCake.isAlive && oven.rect.intersects(activeCake.rect) && cakeGrabbed == true) {
 
@@ -394,6 +397,31 @@ public class BasicGameApp implements Runnable, KeyListener {
             waiter.dy = 0;
 
         }
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
 
     }
 }
