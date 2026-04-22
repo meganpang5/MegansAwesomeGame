@@ -37,6 +37,10 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
     public BufferStrategy bufferStrategy;
 
    Waiter waiter;
+    public int score;
+    public int cakesNeededToWin;
+    public boolean gameWon;
+
    Image waiterImage;
     Chef chef;
     Oven oven;
@@ -71,6 +75,9 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
     public BasicGameApp() { // BasicGameApp constructor
 
         setUpGraphics();
+        score = 0;
+        cakesNeededToWin = 10;
+        gameWon = false;
         firstcakeOvenCrash = true;
         firstchefCakeCrash = true;
         waitercakeGrabbed = false;
@@ -117,64 +124,67 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
     }
 
     public void moveThings() {
-        oven.bounce();
-        System.out.println(waitercakeGrabbed);
-//        if (pressingKey) {
+        if (!gameWon) {
+            oven.bounce();
             chef.move();
             waiter.move();
-//        }
 
-        activeCake = cakes[activeCakeNumber];
+            activeCake = cakes[activeCakeNumber];
 
-        // If batter is in hand, force it to be on the chef before collisions
-        if (cakeGrabbed == true && activeCake.isAlive == true && activeCake.isBaked == false) {
-            activeCake.xpos = chef.xpos;
-            activeCake.ypos = chef.ypos;
-            activeCake.dx = chef.dx;
-            activeCake.dy = chef.dy;
-            activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
-        }
-        else if (waitercakeGrabbed == true && activeCake.isAlive == true && activeCake.isBaked == true) {
-            activeCake.xpos = waiter.xpos;
-            activeCake.ypos = waiter.ypos;
-            activeCake.dx = waiter.dx;
-            activeCake.dy = waiter.dy;
-            activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
-        }
-        // Otherwise batter moves freely
-        else if (activeCake.isAlive == true && activeCake.isBaked == false) {
-            activeCake.wrap();
-        }
+            // If batter is in hand, force it to be on the chef before collisions
+            if (cakeGrabbed == true && activeCake.isAlive == true && activeCake.isBaked == false) {
+                activeCake.xpos = chef.xpos;
+                activeCake.ypos = chef.ypos;
+                activeCake.dx = chef.dx;
+                activeCake.dy = chef.dy;
+                activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
+            }
+            else if (waitercakeGrabbed == true && activeCake.isAlive == true && activeCake.isBaked == true) {
+                activeCake.xpos = waiter.xpos;
+                activeCake.ypos = waiter.ypos;
+                activeCake.dx = waiter.dx;
+                activeCake.dy = waiter.dy;
+                activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
+            }
+            else if (activeCake.isAlive == true && activeCake.isBaked == false) {
+                activeCake.wrap();
+            }
 
-        //checking collisions
-        chefCakesCrash();
-        cakeOvenCrash();
-        waiterCakesCrash();
+            // collisions
+            chefCakesCrash();
+            cakeOvenCrash();
+            waiterCakesCrash();
+        }
     }
-
     public void cakeOvenCrash() {
         activeCake = cakes[activeCakeNumber];
         waitercakeGrabbed = false;
 
-        if (activeCake.isAlive && oven.rect.intersects(activeCake.rect) && cakeGrabbed == true) {
+        if (activeCake.isAlive && oven.rect.intersects(activeCake.rect) && cakeGrabbed == true && !activeCake.isBaked) {
 
-            // bounce oven
-            oven.dx = -oven.dx;
-            oven.dy = -oven.dy;
-
-            // bake cake in place (where the batter currently is)
+            // bake the cake
             activeCake.dx = 0;
             activeCake.dy = 0;
             activeCake.isBaked = true;
 
-            // hand becomes empty
+            // chef lets go of cake
             cakeGrabbed = false;
 
-            // activeCake stays alive so it can sit there as a baked cake
+            // score increases by 1 for this cake
+            score++;
+
+            // check win condition
+            if (score >= cakesNeededToWin) {
+                gameWon = true;
+            }
+
+            // keep baked cake on screen
             activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
 
-            // spawn new batter somewhere else
-            spawnNextCake();
+            // only spawn next cake if game is not won yet
+            if (!gameWon) {
+                spawnNextCake();
+            }
         }
     }
 
@@ -265,6 +275,20 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
 
         g.drawImage(chefImage, chef.xpos, chef.ypos, chef.width, chef.height, null);
         g.drawImage(waiterImage, waiter.xpos, waiter.ypos, waiter.width, waiter.height, null);
+
+        // score text
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, 28));
+        g.drawString("Score: " + score, 30, 40);
+        g.drawString("Bake " + cakesNeededToWin + " cakes to win!", 30, 75);
+
+        // win message
+        if (gameWon) {
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 50));
+            g.drawString("YOU WIN!", 350, 350);
+        }
+
         g.dispose();
         bufferStrategy.show();
     }
