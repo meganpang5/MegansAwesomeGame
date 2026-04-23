@@ -248,6 +248,11 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
 
         cakeGrabbed = false;
     }
+//    public void waiterPlaceCake(){
+//        if(waitercakeGrabbed == true && waiter.rect.intersects()){
+//
+//        }
+//    }
 
 
 
@@ -257,7 +262,8 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
 
         g.clearRect(0, 0, WIDTH, HEIGHT);
         g.drawImage(wood, 0, 0, WIDTH, HEIGHT, null);
-
+        g.setColor(Color.WHITE);
+        g.fillRoundRect(105,120,30,30,10,10);
         g.drawImage(ovenImage, oven.xpos, oven.ypos, oven.width, oven.height, null);
 
         // draw all baked cakes
@@ -426,7 +432,8 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
+        System.out.println(e.getX());
+        System.out.println(e.getY());
     }
 
     @Override
