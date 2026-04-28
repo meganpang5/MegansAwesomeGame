@@ -264,6 +264,16 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
         g.drawImage(wood, 0, 0, WIDTH, HEIGHT, null);
         g.setColor(Color.WHITE);
         g.fillRoundRect(105,120,30,30,10,10);
+        g.fillRoundRect(105,170,30,30,10,10);
+        g.fillRoundRect(105,220,30,30,10,10);
+        g.fillRoundRect(105,270,30,30,10,10);
+        g.fillRoundRect(105,320,30,30,10,10);
+        g.fillRoundRect(105,370,30,30,10,10);
+        g.fillRoundRect(105,420,30,30,10,10);
+        g.fillRoundRect(105,470,30,30,10,10);
+        g.fillRoundRect(105,520,30,30,10,10);
+        g.fillRoundRect(105,570,30,30,10,10);
+
         g.drawImage(ovenImage, oven.xpos, oven.ypos, oven.width, oven.height, null);
 
         // draw all baked cakes
