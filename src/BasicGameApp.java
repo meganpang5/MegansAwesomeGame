@@ -60,6 +60,8 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
     public boolean waitercakeGrabbed;
     int activeCakeNumber = 0;
     public Cake activeCake;
+    public CakeRect[] cakeRects;
+    public int placedCakes;
 
 
     // Main method definition
@@ -101,10 +103,18 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
                 //previous cake needs to be determined only after the waitercake is placed down
             }
         }
+        cakeRects = new CakeRect[10];
 
+        for (int i = 0; i < cakeRects.length; i++) {
+            cakeRects[i] = new CakeRect(105, 120 + i * 50);
+        }
         activeCakeNumber = 0;
         cakes[0].isAlive = true;
+        placedCakes = 0;
+        cakesNeededToWin = 10;
+        gameWon = false;
         run();
+
 
     } // end BasicGameApp constructor
 
@@ -174,15 +184,15 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
             score++;
 
             // check win condition
-            if (score >= cakesNeededToWin) {
-                gameWon = true;
-            }
+//            if (score >= cakesNeededToWin) {
+//                gameWon = true;
+//            }
 
             // keep baked cake on screen
             activeCake.rect = new Rectangle(activeCake.xpos, activeCake.ypos, activeCake.width, activeCake.height);
 
             // only spawn next cake if game is not won yet
-            if (!gameWon) {
+            if (activeCakeNumber < cakes.length - 1) {
                 spawnNextCake();
             }
         }
@@ -204,38 +214,38 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
         }
     }
     public void waiterCakesCrash() {
-        activeCake = cakes[activeCakeNumber];
-        Cake previousCake = null;
-        if (activeCakeNumber != 0) {
-            previousCake = cakes[activeCakeNumber - 1];
+        Cake cakeToPickUp;
 
-            if (previousCake.isBaked && waiter.rect.intersects(previousCake.rect) && previousCake.isAlive) {
-                System.out.println("hi");
-                waitercakeGrabbed = true;
+        if (activeCakeNumber == cakes.length - 1 && cakes[activeCakeNumber].isBaked) {
+            cakeToPickUp = cakes[activeCakeNumber];
+        } else if (activeCakeNumber != 0) {
+            cakeToPickUp = cakes[activeCakeNumber - 1];
+        } else {
+            return;
+        }
 
-            }
+        if (cakeToPickUp.isBaked && waiter.rect.intersects(cakeToPickUp.rect) && cakeToPickUp.isAlive) {
+            waitercakeGrabbed = true;
+        }
 
-            if (waitercakeGrabbed == true && previousCake.isBaked == true) {
-                System.out.println("hello");
-                previousCake.xpos = waiter.xpos;
-                previousCake.ypos = waiter.ypos;
-                previousCake.dx = waiter.dx;
-                previousCake.dy = waiter.dy;
-                previousCake.rect = new Rectangle(previousCake.xpos, previousCake.ypos, previousCake.width, previousCake.height);
-            }
+        if (waitercakeGrabbed) {
+            cakeToPickUp.xpos = waiter.xpos;
+            cakeToPickUp.ypos = waiter.ypos;
+            cakeToPickUp.dx = waiter.dx;
+            cakeToPickUp.dy = waiter.dy;
+            cakeToPickUp.rect = new Rectangle(cakeToPickUp.xpos, cakeToPickUp.ypos, cakeToPickUp.width, cakeToPickUp.height);
         }
     }
 
     public void spawnNextCake() {
-
         activeCakeNumber++;
-        activeCake = cakes[activeCakeNumber];
-        activeCake.isBaked = false;
+
         if (activeCakeNumber >= cakes.length) {
-            activeCakeNumber = 0;
+            return;
         }
 
         Cake next = cakes[activeCakeNumber];
+
         next.xpos = (int)(Math.random() * WIDTH);
         next.ypos = (int)(Math.random() * HEIGHT);
         next.dx = (int)(Math.random() * 11) - 5;
@@ -243,16 +253,11 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
 
         next.isBaked = false;
         next.isAlive = true;
-
         next.rect = new Rectangle(next.xpos, next.ypos, next.width, next.height);
 
         cakeGrabbed = false;
     }
-//    public void waiterPlaceCake(){
-//        if(waitercakeGrabbed == true && waiter.rect.intersects()){
-//
-//        }
-//    }
+
 
 
 
@@ -263,6 +268,17 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
         g.clearRect(0, 0, WIDTH, HEIGHT);
         g.drawImage(wood, 0, 0, WIDTH, HEIGHT, null);
         g.setColor(Color.WHITE);
+        g.setColor(Color.WHITE);
+        for (int i = 0; i < cakeRects.length; i++) {
+            g.fillRoundRect(
+                    cakeRects[i].xpos,
+                    cakeRects[i].ypos,
+                    cakeRects[i].width,
+                    cakeRects[i].height,
+                    10,
+                    10
+            );
+        }
         g.fillRoundRect(105,120,30,30,10,10);
         g.fillRoundRect(105,170,30,30,10,10);
         g.fillRoundRect(105,220,30,30,10,10);
@@ -295,8 +311,8 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
         // score text
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 28));
-        g.drawString("Score: " + score, 30, 40);
-        g.drawString("Bake " + cakesNeededToWin + " cakes to win!", 30, 75);
+        g.drawString("Served Cakes: " + placedCakes, 30, 40);
+        g.drawString("Serve " + cakesNeededToWin + " cakes to win!", 30, 75);
 
         // win message
         if (gameWon) {
@@ -346,6 +362,7 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
         canvas.requestFocus();
         canvas.addKeyListener(this);
         System.out.println("DONE graphic setup");
+        canvas.addMouseListener(this);
     }
 
 
@@ -442,13 +459,32 @@ public class BasicGameApp implements Runnable, KeyListener, MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println(e.getX());
-        System.out.println(e.getY());
+
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+        for (int i = 0; i < cakeRects.length; i++) {
+            if (cakeRects[i].rect.contains(e.getPoint())) {
 
+                Cake previousCake = null;
+
+                if (activeCakeNumber != 0) {
+                    previousCake = cakes[activeCakeNumber - 1];
+                }
+
+                if (previousCake != null && waitercakeGrabbed && previousCake.isBaked && !cakeRects[i].hasCake) {
+                    waiter.placeCake(previousCake, cakeRects[i]);
+                    waitercakeGrabbed = false;
+
+                    placedCakes++;
+
+                    if (placedCakes >= cakesNeededToWin) {
+                        gameWon = true;
+                    }
+                }
+            }
+        }
     }
 
     @Override

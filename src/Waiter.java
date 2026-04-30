@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.Rectangle;
 
 public class Waiter {
     public String name;               //name of the hero
@@ -72,6 +73,15 @@ public class Waiter {
             ypos=700;
         }
 
+    }
+    public void placeCake(Cake cake, CakeRect cakeRect) {
+        cake.xpos = cakeRect.xpos - 40;
+        cake.ypos = cakeRect.ypos -50;
+        cake.dx = 0;
+        cake.dy = 0;
+        cake.rect = new Rectangle(cake.xpos, cake.ypos, cake.width, cake.height);
+
+        cakeRect.hasCake = true;
     }
 
 }
